@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${jetbrainsMono.variable} antialiased bg-hearts`}
+        className={`${jetbrainsMono.variable} ${jetbrainsMono.className} antialiased bg-hearts`}
       >
         <HeartsBackground />
         {children}
