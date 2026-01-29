@@ -1,12 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { HeartsBackground } from "@/components/HeartsBackground";
-
-const nunito = Nunito({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
@@ -34,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${nunito.variable} ${jetbrainsMono.variable} antialiased bg-hearts`}
+        className={`${jetbrainsMono.variable} antialiased bg-hearts`}
       >
         <HeartsBackground />
         {children}
