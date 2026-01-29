@@ -32,7 +32,14 @@ export default function Home() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        // Show the detailed message if available (for rate limiting)
+        // 423 = wall/submissions locked until Valentine's Day
+        if (res.status === 423) {
+          throw new Error(
+            data.error ||
+              "Submissions are closed until Valentine's Day (Amsterdam time).",
+          );
+        }
+        // Show the detailed message if available (for rate limiting, etc.)
         throw new Error(data.message || data.error || "Something went wrong");
       }
 

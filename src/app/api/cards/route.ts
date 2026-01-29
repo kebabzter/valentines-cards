@@ -26,6 +26,8 @@ export async function GET() {
   }
 }
 
+// POST does NOT check isUnlockedAmsterdam() — submissions are allowed anytime;
+// only viewing the wall (GET) is locked until Valentine's Day.
 export async function POST(req: NextRequest) {
   try {
     // Rate limiting check
