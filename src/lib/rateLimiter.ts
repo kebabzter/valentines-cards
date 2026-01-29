@@ -1,80 +1,48 @@
 // Simple in-memory rate limiter
-// Limits submissions per IP address
+// Limits total submissions per IP address (no time window)
 
 type RateLimitEntry = {
   ip: string;
-  timestamps: number[];
+  count: number;
 };
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
 // Configuration
-const MAX_SUBMISSIONS = 5; // Max cards per time window
-const TIME_WINDOW_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+const MAX_SUBMISSIONS = 5; // Max cards in total per IP address
 
-// Cleanup old entries every 10 minutes
-const CLEANUP_INTERVAL_MS = 10 * 60 * 1000;
-
-let cleanupInterval: NodeJS.Timeout | null = null;
-
-function startCleanup() {
-  if (cleanupInterval) return;
-  cleanupInterval = setInterval(() => {
-    const now = Date.now();
-    for (const [ip, entry] of rateLimitStore.entries()) {
-      // Remove timestamps older than the time window
-      entry.timestamps = entry.timestamps.filter(
-        (ts) => now - ts < TIME_WINDOW_MS,
-      );
-      // Remove entry if no timestamps left
-      if (entry.timestamps.length === 0) {
-        rateLimitStore.delete(ip);
-      }
-    }
-  }, CLEANUP_INTERVAL_MS);
-}
+// No reset — once limit is reached, no more submissions from that IP
+const NO_RESET = Number.POSITIVE_INFINITY;
 
 export function checkRateLimit(ip: string): {
   allowed: boolean;
   remaining: number;
   resetAt: number;
 } {
-  startCleanup();
-
-  const now = Date.now();
   let entry = rateLimitStore.get(ip);
 
   if (!entry) {
-    entry = { ip, timestamps: [] };
+    entry = { ip, count: 0 };
     rateLimitStore.set(ip, entry);
   }
 
-  // Remove old timestamps outside the time window
-  entry.timestamps = entry.timestamps.filter(
-    (ts) => now - ts < TIME_WINDOW_MS,
-  );
-
-  const count = entry.timestamps.length;
+  const count = entry.count;
 
   if (count >= MAX_SUBMISSIONS) {
-    // Find the oldest timestamp to calculate when the limit resets
-    const oldestTimestamp = Math.min(...entry.timestamps);
-    const resetAt = oldestTimestamp + TIME_WINDOW_MS;
-
     return {
       allowed: false,
       remaining: 0,
-      resetAt,
+      resetAt: NO_RESET,
     };
   }
 
   // Record this submission attempt
-  entry.timestamps.push(now);
+  entry.count += 1;
 
   return {
     allowed: true,
     remaining: MAX_SUBMISSIONS - count - 1,
-    resetAt: now + TIME_WINDOW_MS,
+    resetAt: NO_RESET,
   };
 }
 

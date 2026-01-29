@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { addCard, getAllCards } from "@/lib/cardsStore";
 import { getUnlockInstantUtc, isUnlockedAmsterdam } from "@/lib/amsterdamTime";
 import { checkRateLimit, getClientIP } from "@/lib/rateLimiter";
+import { isCardContentBlacklisted } from "@/lib/blacklist";
+import { isBanned, recordNaughtyAttempt } from "@/lib/naughtyBan";
 
 export async function GET() {
   try {
@@ -30,27 +32,42 @@ export async function GET() {
 // only viewing the wall (GET) is locked until Valentine's Day.
 export async function POST(req: NextRequest) {
   try {
-    // Rate limiting check
+    // Banned check (naughty attempts)
     const clientIP = getClientIP(req);
+    if (await isBanned(clientIP)) {
+      return NextResponse.json(
+        {
+          banned: true,
+          naughty: true,
+          error: "You have been banned.",
+          message:
+            "Your IP has been banned after repeated inappropriate submissions.",
+        },
+        { status: 403 },
+      );
+    }
+
+    // Rate limiting check
     const rateLimit = checkRateLimit(clientIP);
 
     if (!rateLimit.allowed) {
-      const resetDate = new Date(rateLimit.resetAt);
+      const headers: Record<string, string> = {
+        "X-RateLimit-Limit": "5",
+        "X-RateLimit-Remaining": "0",
+        "X-RateLimit-Reset": String(rateLimit.resetAt),
+      };
+      if (Number.isFinite(rateLimit.resetAt)) {
+        headers["Retry-After"] = String(
+          Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+        );
+      }
       return NextResponse.json(
         {
-          error: "Too many submissions. Please try again later.",
-          resetAt: resetDate.toISOString(),
-          message: `You can submit up to 5 cards per hour. Try again after ${resetDate.toLocaleTimeString()}.`,
+          error: "Too many submissions.",
+          message:
+            "You've reached the maximum of 5 cards per person. No more submissions allowed from this device.",
         },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)),
-            "X-RateLimit-Limit": "5",
-            "X-RateLimit-Remaining": "0",
-            "X-RateLimit-Reset": String(rateLimit.resetAt),
-          },
-        },
+        { status: 429, headers },
       );
     }
 
@@ -64,9 +81,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const from = typeof fromName === "string" ? fromName : "";
+    const to = typeof toName === "string" ? toName : "";
+
+    if (isCardContentBlacklisted(message, from, to)) {
+      const { naughtyCount, banned } = await recordNaughtyAttempt(clientIP);
+
+      if (banned) {
+        return NextResponse.json(
+          {
+            banned: true,
+            naughty: true,
+            naughtyAttempts: naughtyCount,
+            error: "You have been banned.",
+            message:
+              "Your IP has been banned after 3 inappropriate submission attempts.",
+          },
+          { status: 403 },
+        );
+      }
+
+      return NextResponse.json(
+        {
+          naughty: true,
+          naughtyAttempts: naughtyCount,
+          error: "Your submission contains language that isn't allowed.",
+          message: "Please remove offensive content and try again.",
+        },
+        { status: 400 },
+      );
+    }
+
     const card = await addCard({
-      fromName: typeof fromName === "string" ? fromName : "",
-      toName: typeof toName === "string" ? toName : "",
+      fromName: from,
+      toName: to,
       message: message.slice(0, 1000),
       anonymous: Boolean(anonymous),
     });

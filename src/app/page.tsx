@@ -7,6 +7,8 @@ export default function Home() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showNaughtyModal, setShowNaughtyModal] = useState(false);
+  const [naughtyBanned, setNaughtyBanned] = useState(false);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -14,6 +16,8 @@ export default function Home() {
     setSubmitting(true);
     setError(null);
     setSuccess(false);
+    setShowNaughtyModal(false);
+    setNaughtyBanned(false);
 
     const formData = new FormData(e.currentTarget);
     const payload = {
@@ -30,8 +34,16 @@ export default function Home() {
         body: JSON.stringify(payload),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
+        // Naughty (blacklisted content) — show modal
+        if (data.naughty) {
+          setShowNaughtyModal(true);
+          setNaughtyBanned(Boolean(data.banned));
+          setSubmitting(false);
+          return;
+        }
         // 423 = wall/submissions locked until Valentine's Day
         if (res.status === 423) {
           throw new Error(
@@ -126,7 +138,7 @@ export default function Home() {
             />
             <p className="text-xs text-pink-600">
               Max 1000 characters. Your message will be visible when the wall
-              unlocks. Limit: 5 cards per hour per person.
+              unlocks. Limit: 5 cards per person in total.
             </p>
           </div>
 
@@ -161,6 +173,37 @@ export default function Home() {
           </button>
         </form>
       </main>
+
+      {/* Naughty modal */}
+      {showNaughtyModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="naughty-modal-title"
+        >
+          <div className="bg-white rounded-2xl shadow-xl border border-pink-200 p-6 sm:p-8 max-w-sm w-full text-center space-y-4">
+            <h2
+              id="naughty-modal-title"
+              className="text-xl font-bold text-pink-900"
+            >
+              You are being naughty!
+            </h2>
+            {naughtyBanned && (
+              <p className="text-pink-800 font-medium">
+                You have been banned after 3 inappropriate attempts.
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowNaughtyModal(false)}
+              className="w-full rounded-xl bg-pink-600 py-3 px-4 text-white font-semibold hover:bg-pink-700 transition-colors"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

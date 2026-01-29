@@ -12,3 +12,11 @@ CREATE TABLE IF NOT EXISTS cards (
 
 -- Optional: index for listing by newest first
 CREATE INDEX IF NOT EXISTS cards_created_at_desc ON cards (created_at DESC);
+
+-- Banned IPs (naughty attempt tracking: 3 strikes = ban)
+CREATE TABLE IF NOT EXISTS banned_ips (
+  ip TEXT PRIMARY KEY,
+  naughty_count INT NOT NULL DEFAULT 0,
+  banned BOOLEAN NOT NULL DEFAULT false,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
