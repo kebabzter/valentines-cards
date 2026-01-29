@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Nunito, Fira_Code } from "next/font/google";
 import "./globals.css";
 import { HeartsBackground } from "@/components/HeartsBackground";
@@ -16,6 +16,11 @@ const firaCode = Fira_Code({
 export const metadata: Metadata = {
   title: "Valentine's Cards",
   description: "Collect and reveal Valentine's Day messages.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

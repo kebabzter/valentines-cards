@@ -4,15 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getUnlockInstantUtc } from "@/lib/amsterdamTime";
 import { Navigation } from "@/components/Navigation";
-
-type Card = {
-  id: string;
-  fromName: string;
-  toName: string;
-  message: string;
-  anonymous: boolean;
-  createdAt: string;
-};
+import { PaginatedCardGrid } from "@/components/PaginatedCardGrid";
+import type { CardData } from "@/components/Card";
 
 const UNLOCK_AT_UTC = getUnlockInstantUtc();
 
@@ -31,7 +24,7 @@ function formatDuration(ms: number) {
 }
 
 export default function CardsPage() {
-  const [cards, setCards] = useState<Card[]>([]);
+  const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [locked, setLocked] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -54,7 +47,7 @@ export default function CardsPage() {
           return;
         }
         if (!res.ok) throw new Error("Failed to load cards");
-        const data: Card[] = await res.json();
+        const data: CardData[] = await res.json();
         // Newest first
         setCards(
           data.sort(
@@ -75,55 +68,60 @@ export default function CardsPage() {
 
   if (locked) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="max-w-lg space-y-5 card-surface rounded-3xl border border-pink-100 p-8 shadow-xl">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-extrabold text-pink-900">
+      <div className="min-h-screen flex flex-col px-4 sm:px-6 py-6 sm:py-12 sm:justify-center sm:items-center">
+        <div className="flex justify-center py-3 sm:py-0 sm:hidden">
+          <Navigation />
+        </div>
+        <div className="max-w-lg w-full space-y-6 card-surface rounded-2xl sm:rounded-3xl border border-pink-100 p-6 sm:p-10 shadow-xl shadow-pink-200/30">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-pink-900 text-center sm:text-left">
               Valentine&apos;s Wall
             </h1>
-            <Navigation />
+            <div className="hidden sm:block">
+              <Navigation />
+            </div>
           </div>
-          <p className="text-pink-800 text-center">
+          <p className="text-pink-800 text-center text-sm sm:text-base">
             💌 It is almost time... The wall unlocks soon!
           </p>
-          <div className="mt-2 rounded-2xl border border-pink-100 bg-white/60 px-5 py-4">
-            <div className="text-sm text-pink-700 uppercase tracking-widest mb-2">
+          <div className="mt-2 rounded-xl sm:rounded-2xl border border-pink-100 bg-white/60 px-4 sm:px-6 py-4 sm:py-5">
+            <div className="text-xs sm:text-sm text-pink-700 uppercase tracking-widest mb-2 text-center">
               Countdown
             </div>
-            <div className="flex items-end justify-center gap-4 text-pink-950">
-              <div>
-                <div className="text-3xl font-extrabold tabular-nums">
+            <div className="flex items-end justify-center gap-2 sm:gap-4 text-pink-950">
+              <div className="text-center min-w-12 sm:min-w-0">
+                <div className="text-2xl sm:text-3xl font-extrabold tabular-nums">
                   {timeLeft.days}
                 </div>
-                <div className="text-xs text-pink-700">days</div>
+                <div className="text-[10px] sm:text-xs text-pink-700">days</div>
               </div>
-              <div>
-                <div className="text-3xl font-extrabold tabular-nums">
+              <div className="text-center min-w-10 sm:min-w-0">
+                <div className="text-2xl sm:text-3xl font-extrabold tabular-nums">
                   {String(timeLeft.hours).padStart(2, "0")}
                 </div>
-                <div className="text-xs text-pink-700">hours</div>
+                <div className="text-[10px] sm:text-xs text-pink-700">hours</div>
               </div>
-              <div>
-                <div className="text-3xl font-extrabold tabular-nums">
+              <div className="text-center min-w-10 sm:min-w-0">
+                <div className="text-2xl sm:text-3xl font-extrabold tabular-nums">
                   {String(timeLeft.minutes).padStart(2, "0")}
                 </div>
-                <div className="text-xs text-pink-700">minutes</div>
+                <div className="text-[10px] sm:text-xs text-pink-700">minutes</div>
               </div>
-              <div>
-                <div className="text-3xl font-extrabold tabular-nums">
+              <div className="text-center min-w-10 sm:min-w-0">
+                <div className="text-2xl sm:text-3xl font-extrabold tabular-nums">
                   {String(timeLeft.seconds).padStart(2, "0")}
                 </div>
-                <div className="text-xs text-pink-700">seconds</div>
+                <div className="text-[10px] sm:text-xs text-pink-700">seconds</div>
               </div>
             </div>
           </div>
 
-          <p className="text-xs text-pink-700">
-            Developer? Use the hidden preview at{" "}
+          <p className="text-xs text-pink-700 text-center sm:text-left">
+            Developer{" "}
             <Link href="/preview" className="underline font-medium">
-              /preview
+              preview
             </Link>
-            .
+            . If you are not the dev you won&apos;t find anything here.
           </p>
         </div>
       </div>
@@ -131,59 +129,34 @@ export default function CardsPage() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4">
+    <div className="min-h-screen py-6 sm:py-12 px-4 sm:px-6">
+      <div className="flex justify-center py-3 sm:py-0 sm:hidden">
+        <Navigation />
+      </div>
       <div className="mx-auto max-w-5xl">
-        <header className="mb-10 space-y-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-extrabold text-pink-900">
+        <header className="mb-8 sm:mb-12 space-y-4 rounded-2xl card-surface border border-pink-100 p-6 sm:p-8 shadow-lg shadow-pink-200/20">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-pink-900 text-center sm:text-left">
               Valentine&apos;s Wall of Love
             </h1>
-            <Navigation />
+            <div className="hidden sm:block">
+              <Navigation />
+            </div>
           </div>
-          <p className="text-pink-800 text-center sm:text-left">
+          <p className="text-pink-800 text-center sm:text-left text-sm sm:text-base leading-relaxed">
             All the sweet messages people have written.
           </p>
         </header>
 
         {loading ? (
-          <p className="text-center text-pink-800">Loading cards...</p>
+          <p className="text-center text-pink-700 py-12 text-base">Loading cards...</p>
         ) : cards.length === 0 ? (
-          <p className="text-center text-pink-800">
+          <p className="text-center text-pink-700 py-12 text-base rounded-2xl card-surface border border-pink-100 p-8">
             No cards yet, but they&apos;re on the way!
           </p>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {cards.map((card) => (
-              <article
-                key={card.id}
-                className="rounded-2xl card-surface shadow-md border border-pink-100 p-5 flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="text-sm text-pink-700 uppercase tracking-wide">
-                    To{" "}
-                    <span className="font-semibold">
-                      {card.toName || "someone special"}
-                    </span>
-                  </div>
-                  <p className="text-pink-950 whitespace-pre-line">
-                    {card.message}
-                  </p>
-                </div>
-                <div className="mt-4 flex justify-between items-center text-sm text-pink-700">
-                  <span>
-                    From{" "}
-                    <span className="font-semibold">
-                      {card.anonymous
-                        ? "someone who cares"
-                        : card.fromName || "someone who cares"}
-                    </span>
-                  </span>
-                  <span className="text-pink-500">
-                    {new Date(card.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </article>
-            ))}
+          <div className="pt-2">
+            <PaginatedCardGrid cards={cards} />
           </div>
         )}
       </div>

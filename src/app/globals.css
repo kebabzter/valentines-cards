@@ -24,6 +24,13 @@ body {
   color: var(--foreground);
 }
 
+/* Slightly larger tap targets on touch devices */
+@media (pointer: coarse) {
+  button:not(:disabled) {
+    min-height: 44px;
+  }
+}
+
 .bg-hearts {
   background-color: #fdf2f8;
 }

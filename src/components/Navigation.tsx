@@ -11,22 +11,22 @@ export function Navigation() {
   const isWall = pathname === "/cards";
 
   return (
-    <nav className="flex gap-2 text-sm">
+    <nav className="flex flex-wrap gap-3 text-sm">
       {!isCreate && (
         <Link
           href="/"
-          className="rounded-full border border-pink-300 bg-white/70 px-3 py-1.5 font-medium text-pink-800 hover:bg-pink-50 transition-colors flex items-center gap-1.5"
+          className="rounded-xl border border-pink-200 bg-white/90 px-4 py-2.5 font-medium text-pink-800 shadow-sm hover:bg-pink-50 hover:border-pink-300 hover:shadow transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] sm:min-h-0"
         >
-          <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
+          <FontAwesomeIcon icon={faPlus} className="w-3.5 h-3.5 shrink-0" />
           <span>Create card</span>
         </Link>
       )}
       {!isWall && (
         <Link
           href="/cards"
-          className="rounded-full border border-pink-300 bg-white/70 px-3 py-1.5 font-medium text-pink-800 hover:bg-pink-50 transition-colors flex items-center gap-1.5"
+          className="rounded-xl border border-pink-200 bg-white/90 px-4 py-2.5 font-medium text-pink-800 shadow-sm hover:bg-pink-50 hover:border-pink-300 hover:shadow transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] sm:min-h-0"
         >
-          <FontAwesomeIcon icon={faHeart} className="w-3 h-3" />
+          <FontAwesomeIcon icon={faHeart} className="w-3.5 h-3.5 shrink-0" />
           <span>View wall</span>
         </Link>
       )}
