@@ -16,6 +16,9 @@ const firaCode = Fira_Code({
 export const metadata: Metadata = {
   title: "Valentine's Cards",
   description: "Collect and reveal Valentine's Day messages.",
+  icons: {
+    icon: "./favicon.ico",
+  },
 };
 
 export const viewport: Viewport = {
