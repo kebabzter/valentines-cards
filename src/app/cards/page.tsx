@@ -144,7 +144,7 @@ export default function CardsPage() {
             </div>
           </div>
           <p className="text-pink-800 text-center sm:text-left text-sm sm:text-base leading-relaxed">
-            All the sweet messages people have written.
+            All the amazing messages people have written.
           </p>
         </header>
 
