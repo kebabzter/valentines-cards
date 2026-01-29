@@ -81,7 +81,8 @@ export default function Home() {
           </div>
           <p className="text-pink-800 text-center sm:text-left text-sm sm:text-base leading-relaxed">
             Write a sweet or a funny message to someone special. All cards will appear
-            together on the Valentine&apos;s Day wall. {"(you can joke but please be respectful)"}
+            together on the Valentine&apos;s Day wall. 
+            <span className="text-pink-600 italic">{"(you can joke but please be respectful)"}</span>
           </p>
         </header>
 
