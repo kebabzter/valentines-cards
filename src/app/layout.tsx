@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito, Fira_Code } from "next/font/google";
+import { Nunito, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { HeartsBackground } from "@/components/HeartsBackground";
 
@@ -8,7 +8,7 @@ const nunito = Nunito({
   subsets: ["latin"],
 });
 
-const firaCode = Fira_Code({
+const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
 });
@@ -34,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${nunito.variable} ${firaCode.variable} antialiased bg-hearts`}
+        className={`${nunito.variable} ${jetbrainsMono.variable} antialiased bg-hearts`}
       >
         <HeartsBackground />
         {children}
