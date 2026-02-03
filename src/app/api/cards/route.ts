@@ -81,8 +81,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const from = typeof fromName === "string" ? fromName : "";
-    const to = typeof toName === "string" ? toName : "";
+    const from = typeof fromName === "string" ? fromName.trim() : "";
+    const to = typeof toName === "string" ? toName.trim() : "";
+
+    if (!to) {
+      return NextResponse.json(
+        { error: "Recipient (To) is required" },
+        { status: 400 },
+      );
+    }
 
     if (isCardContentBlacklisted(message, from, to)) {
       const { naughtyCount, banned } = await recordNaughtyAttempt(clientIP);

@@ -93,13 +93,14 @@ export default function Home() {
                 htmlFor="toName"
                 className="block text-sm font-medium text-pink-900"
               >
-                To
+                To <span className="text-pink-600">*</span>
               </label>
               <input
                 id="toName"
                 name="toName"
                 type="text"
-                placeholder="Their name (optional)"
+                required
+                placeholder="Their name"
                 className="w-full rounded-xl border border-pink-200 bg-white/80 px-4 py-3 text-pink-950 placeholder:text-pink-400 shadow-sm focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:ring-offset-1 transition-colors"
               />
             </div>
